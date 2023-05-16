@@ -1,0 +1,147 @@
+@import '@/scss/variable.scss';
+*{
+    box-sizing: border-box;
+}
+.container{
+    margin: auto;
+    padding: 0 10px;
+}
+body, html{
+    font-family: arial, "microsoft jhenghei";    
+}
+.layout-login-container {
+    display: block;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    @include min-dev($mobile_m){
+        display: flex;
+        background-color: transparent;
+        background-image: linear-gradient(45deg, #df5841 0%, #ffe772 100%);
+        overflow: hidden;
+    }
+    &::after{
+        display: none;
+        @include min-dev($mobile_m){
+            display: block;
+            position: absolute;
+            content: "";
+            width: 80vmax;
+            height: 80vmax;
+            background-color: rgba(#fff,.2);
+            top: -40%;
+            left: -30%;
+            border-radius: 50%;
+            box-shadow: 700px 300px 5px rgba(#fff,.1);
+        }
+    }
+    .loginBox{
+        background-color: #fff;
+        padding: 0;
+        z-index: 2;
+        @include min-dev($mobile_m){
+            box-shadow: -3px 6px 3px rgba(#333,.5);
+        }
+    }
+    .loginBG{
+        position: relative;
+        height: 260px;
+        background-image: url("../img/loginBG.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        overflow: hidden;
+        border-radius: 0 0 20px 20px;
+        @include min-dev($pad){
+            height: 540px;
+            overflow: none;
+            border-radius: 0;
+        }
+        &::before{
+            display: block;
+            width: 100%;
+            height: 100%;
+            content: "";
+            background-color: rgba(#000,.6);
+        }
+        .loginLogo{
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            top: 30px;
+            left: 0;
+            right: 0;
+            margin: auto;
+            background-color: rgba(#fff,.1);
+            border-radius: 50%;
+            box-shadow: 0 3px 8px #333;
+            @include min-dev($pad){
+                top: 0;
+                bottom: 0;
+                height: fit-content;
+                background-color: transparent;
+            }
+            img{
+                display: block;
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 80px;
+                margin: auto;
+                @include min-dev($pad){
+                    width: 100%;
+                }
+            }
+        }
+        .slogan{
+            position: absolute;
+            width: fit-content;
+            top: 160px;
+            left: 0;
+            right: 0;
+            color: #fff;
+            margin: auto;
+            font-size: 30px;
+            letter-spacing: 10px;
+            @include min-dev($pad){
+                display: block;
+                top: 60%;
+            }
+        }
+    }
+    .loginForm{
+        padding: 10px;
+        .formTitle{
+            text-align: center;
+            font-size: 30px;
+            font-weight: bold;
+            margin: 80px 0 40px;
+            color: #666;
+            @include min-dev($pad){
+                margin: 120px 0 40px;
+            }
+        }
+        .inputIcon{
+            background-color: #4ed3b8;
+            width: 32px;
+            height: 32px;
+            padding: 4px;
+            img{
+                width: 100%;
+            }
+        }
+        .inputStyle{
+            width: calc(100% - 52px);
+        }
+        .submitBox, .register_link{
+            .el-form-item__content{
+                margin: 0 !important;
+            }
+        }
+    }
+}
