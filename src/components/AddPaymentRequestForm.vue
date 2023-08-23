@@ -494,9 +494,11 @@ const dialogWidth = ref(860);  // 新增請款單整體高度
                             width: 5.8rem;
                             // margin-left: 0.5rem;
                             text-overflow: ellipsis;
-                            overflow: hidden;
+                            // overflow: hidden;
                             word-break: break-all;
                             white-space: nowrap;
+                            z-index: 2;
+                            padding-left: 5px;
                         }
 
                         // 上傳檔案的檔案磚

@@ -18,9 +18,16 @@
                    :width="`${dialogWidth}px`"
                    @close="closeOnDelete">
             <el-row :gutter="20">
-                <el-col :sm="24">
+                <el-col class="flex justify-start" :sm="18">
                     <el-form-item class="add-payment-detail-title" label="請款內容"
                                   label-width="85px"></el-form-item>
+                </el-col>
+                <el-col class="flex justify-end" :sm="6">
+                    <el-form-item class="add-payment-detail-title " label="申請日期："
+                                  label-width="115px">
+                        <!-- <template #default="{ row }">{{ row.created_at }}</template> -->
+                        {{ '2023-02-02' }}
+                    </el-form-item>
                 </el-col>
             </el-row>
 
@@ -219,7 +226,7 @@
 </template>
 
 <script lang='ts' setup >
-import { provide, ref, reactive, nextTick, onMounted, computed, watch, onBeforeMount, defineProps, defineEmits  } from 'vue';
+import { provide, ref, reactive, nextTick, onMounted, computed, watch, onBeforeMount, defineProps, defineEmits } from 'vue';
 import moment from 'moment';
 // import { punchs, punch, departments, leaveTypes, users, addLeaveApplication, exportDepartmentPunchs, signs, newSign, newLeaveApplications } from '@/api';
 // import type { Department, Punch, User, SignState, NewLeaveApplication } from "@/types";
@@ -360,6 +367,7 @@ const dialogWidth = ref(860);  // 新增請款單整體高度
                         }
                     }
                 }
+
                 .payment-detail-group {
                     width: 660px;
 

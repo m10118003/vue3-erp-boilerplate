@@ -4,21 +4,23 @@
             <el-card>
                 <div class="payment-request-date-container flex flex-col md:flex-row">
                     <el-form-item class="payment-request-start flex flex-col md:flex-row" label="日期時間：" label-width="100px">
-                        <el-date-picker class="payment-request-timepicker-start" v-model="form.start" type="date"
-                                        format="YYYY-MM-DD" value-format="YYYY-MM-DD" @change="form.rangeChange"
-                                        @panel-change="form.rangeChange"
-                                        prefix-icon="Calendar" :disabled-date="form.disabledDate" :editable="false"
-                                        :picker-options="form.start" />
+                        <el-date-picker class="payment-request-timepicker-start" v-model="paymentSignForm.start" type="date"
+                                        format="YYYY-MM-DD" value-format="YYYY-MM-DD" @change="paymentSignForm.rangeChange"
+                                        @panel-change="paymentSignForm.rangeChange"
+                                        prefix-icon="Calendar" :disabled-date="paymentSignForm.disabledDate"
+                                        :editable="false"
+                                        :picker-options="paymentSignForm.start" />
                     </el-form-item>
                     <div>
                         <span class="to px-5">至</span>
                     </div>
                     <el-form-item class="payment-request-end flex flex-col md:flex-row" label-width="5px">
-                        <el-date-picker class="payment-request-timepicker-end" v-model="form.end" type="date"
-                                        format="YYYY-MM-DD" value-format="YYYY-MM-DD" @change="form.rangeChange"
-                                        @panel-change="form.rangeChange"
-                                        prefix-icon="Calendar" :disabled-date="form.disabledDate" :editable="false"
-                                        :picker-options="form.end" />
+                        <el-date-picker class="payment-request-timepicker-end" v-model="paymentSignForm.end" type="date"
+                                        format="YYYY-MM-DD" value-format="YYYY-MM-DD" @change="paymentSignForm.rangeChange"
+                                        @panel-change="paymentSignForm.rangeChange"
+                                        prefix-icon="Calendar" :disabled-date="paymentSignForm.disabledDate"
+                                        :editable="false"
+                                        :picker-options="paymentSignForm.end" />
                     </el-form-item>
                 </div>
                 <!-- <el-form :data="" class="payment-request-details flex flex-col md:flex-row"> -->
@@ -26,7 +28,7 @@
                     <!-- <template v-if="userStore.crossView"> -->
 
                     <el-form-item label="申請部門：" label-width="82px" class="ml-2">
-                        <el-select class="payment-request-select-width mr-14" v-model="form.selectedDepartment"
+                        <el-select class="payment-request-select-width mr-14" v-model="paymentSignForm.selectedDepartment"
                                    label="申請部門："
                                    placeholder="請選擇部門">
                             <el-option value="" label="預設部門"></el-option>
@@ -44,7 +46,7 @@
                     <!-- <template v-if="userStore.crossView || userStore.department.user_id == userStore.id"> -->
 
                     <el-form-item label="申請人：" label-width="80px">
-                        <el-select v-model="form.user_name" label="申請人：" placeholder="選擇申請人">
+                        <el-select v-model="paymentSignForm.user_name" label="申請人：" placeholder="選擇申請人">
                             <el-option value="" label="全部" />
                             <el-option value="1" label="A User" />
                             <el-option value="2" label="B User" />
@@ -54,7 +56,8 @@
 
 
                     <el-form-item label="進度：" label-width="80px">
-                        <el-select v-model="form.progress" label="進度：" :default-first-option="true" placeholder="全部">
+                        <el-select v-model="paymentSignForm.progress" label="進度：" :default-first-option="true"
+                                   placeholder="全部">
                             <el-option value="" label="全部"></el-option>
                             <el-option value="1" label="完成"></el-option>
                             <el-option value="2" label="駁回"></el-option>
@@ -68,22 +71,13 @@
                         </el-select>
                     </el-form-item>
 
-                    <el-form-item label="請款：" label-width="80px">
-                        <el-select v-model="form.paymentRequest" :default-first-option="true">
+                    <el-form-item label="簽核：" label-width="80px">
+                        <el-select v-model="paymentSignForm.paymentRequest" :default-first-option="true">
                             <el-option value="" label="全部"></el-option>
-                            <el-option value="1" label="完成"></el-option>
-                            <el-option value="2" label="待簽收"></el-option>
-                            <el-option value="3" label="未核准"></el-option>
+                            <el-option value="1" label="核准"></el-option>
+                            <el-option value="2" label="駁回"></el-option>
+                            <el-option value="3" label="待審核"></el-option>
                         </el-select>
-                    </el-form-item>
-                </el-form>
-
-                <el-form>
-                    <el-form-item class="add-payment-request-form">
-                        <!-- + 新增請款單 -->
-                        <AddPaymentRequestForm v-model="showAddPaymentRequestForm"
-                                               ref="selectedPaymentRequest" />
-                        <!-- <AddPaymentRequestForm v-model="showAddPaymentRequestForm" @search="handelSearch()" /> -->
                     </el-form-item>
                 </el-form>
 
@@ -212,117 +206,28 @@
                             <template #default="{ row }">{{ row.payment_process1 }}</template>
                         </el-table-column>
                         <!-- 請款欄位 簽收按鈕 -->
-                        <el-table-column prop="payment_sign_hint" label="請款" width="120">
+                        <el-table-column prop="payment_sign" label="簽核" width="120">
                             <template #default="{ row }">
-                                <el-button class="payment-sign-hint-button" type="primary" @click="paymentSignHint = true"
+                                <el-button class="payment-sign-button" type="primary" @click="openPaymentSignDialog"
                                            @click.stop>{{
                                                row.payment_sign
                                            }}</el-button>
-                            </template>
-                        </el-table-column>
-                        <el-table-column class="state-container" prop="payment_op" label="操作" width="160">
-                            <template #default="{ row }">
-                                <!-- <el-row v-if="row.state === 0" class="state-button-group flex flex-wrap m-0" @click.stop>
-                                    <template v-if="userStore.id == row.sequence[row.index].id">
-                                        <el-button type="success" @click="sendSign(row.id, true)">核准</el-button>
-                                        <el-button type="danger" @click="sendSign(row.id, false)">駁回</el-button>
-                                    </template>
-                                </el-row>
-                                <div class="state-set-group flex flex-wrap justify-center">
-                                    <div class="state-set" :style="{ color: getStatusColor(row.state) }">
-                                        {{ newSignStateText(row.state) }}
-                                    </div>
-                                </div> -->
-                                <div class="flex justify-around items-center">
-                                    <u @click="editPaymentRequest()" @click.stop>{{ '編輯' }}</u>
-                                    <u @click="paymentSendDialog = true"
-                                       @click.stop>{{ '送出' }}</u>
-                                    <u @click="paymentWithdrawDialog = true"
-                                       @click.stop>{{ '撤回' }}</u>
-                                    <u @click="paymentDeleteDialog = true"
-                                       @click.stop>{{ '刪除' }}</u>
-                                </div>
                             </template>
                         </el-table-column>
                     </el-table>
                 </div>
 
                 <el-form>
-                    <el-form-item class="add-payment-request-form">
+                    <el-form-item>
                         <!-- 詳細內容點擊彈窗, 請款內容 -->
                         <PaymentDetail v-model="showPaymentDetail" ref="paymentDialog" />
-                        <!-- 請款, 簽收內容彈窗 -->
-                        <el-dialog class="payment-sign-dialog"
-                                   v-model="paymentSignHint"
-                                   title="請款簽收"
-                                   width="22%"
-                                   :before-close="handleClose"
-                                   :show-close="false">
-                            <span>請確認是否收到請款金額 新台幣 1,200元整?</span>
-                            <template #footer>
-                                <span class="payment-sign-dialog-footer flex justify-center">
-                                    <el-button class="payment-sign-check mr-6" type="primary"
-                                               @click="paymentSignHint = false">
-                                        確認
-                                    </el-button>
-                                    <el-button type="info" @click="paymentSignHint = false">取消</el-button>
-                                </span>
-                            </template>
-                        </el-dialog>
-                        <!-- 操作, 送出請購單 -->
-                        <el-dialog class="payment-sign-dialog"
-                                   v-model="paymentSendDialog"
-                                   title="送出請購單"
-                                   width="22%"
-                                   :before-close="handleClose"
-                                   :show-close="false">
-                            <span>請確認是否送出請購單?</span>
-                            <template #footer>
-                                <span class="payment-sign-dialog-footer flex justify-center">
-                                    <el-button class="payment-sign-check mr-6" type="primary"
-                                               @click="paymentSendDialog = false">
-                                        送出
-                                    </el-button>
-                                    <el-button type="info" @click="paymentSendDialog = false">取消</el-button>
-                                </span>
-                            </template>
-                        </el-dialog>
-                        <!-- 操作, 撤回請購單 -->
-                        <el-dialog class="payment-sign-dialog"
-                                   v-model="paymentWithdrawDialog"
-                                   title="撤回請購單"
-                                   width="22%"
-                                   :before-close="handleClose"
-                                   :show-close="false">
-                            <span>請確認是否撤回請購單?</span>
-                            <template #footer>
-                                <span class="payment-sign-dialog-footer flex justify-center">
-                                    <el-button class="payment-sign-check mr-6" type="primary"
-                                               @click="paymentWithdrawDialog = false">
-                                        撤回
-                                    </el-button>
-                                    <el-button type="info" @click="paymentWithdrawDialog = false">取消</el-button>
-                                </span>
-                            </template>
-                        </el-dialog>
-                        <!-- 操作, 刪除請購單 -->
-                        <el-dialog class="payment-sign-dialog"
-                                   v-model="paymentDeleteDialog"
-                                   title="刪除請購單"
-                                   width="22%"
-                                   :before-close="handleClose"
-                                   :show-close="false">
-                            <span>請確認是否刪除請購單?</span>
-                            <template #footer>
-                                <span class="payment-sign-dialog-footer flex justify-center">
-                                    <el-button class="payment-sign-check mr-6" type="primary"
-                                               @click="paymentDeleteDialog = false">
-                                        刪除
-                                    </el-button>
-                                    <el-button type="info" @click="paymentDeleteDialog = false">取消</el-button>
-                                </span>
-                            </template>
-                        </el-dialog>
+                    </el-form-item>
+                </el-form>
+
+                <el-form>
+                    <el-form-item>
+                        <!-- 詳細內容點擊彈窗, 請款內容 -->
+                        <PaymentSignDialog v-model="showPaymentSignDialog" ref="paymentSignDialog" />
                     </el-form-item>
                 </el-form>
 
@@ -351,15 +256,11 @@ import moment from 'moment';
 import { minuteToHumanTime, signStateText, newSignStateType, newSignStateText, getStatusColor } from '@/config';
 import { Calendar, Plus } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-// import PaymentRequestTable from '@/components/PaymentRequestTable/index.vue';
-import AddPaymentRequestForm from '@/components/AddPaymentRequestForm.vue';
 import PaymentDetail from '@/components/PaymentDetail.vue';
-
-
-const showAddPaymentRequestForm = ref(false); // 新增請款單
+import PaymentSignDialog from '@/components/PaymentSignDialog.vue';
 
 // 查詢請款單表單
-const form = reactive({
+const paymentSignForm = reactive({
     start: moment(new Date).format('YYYY-MM-DD'),  // 開始日期
     end: moment(new Date).format('YYYY-MM-DD'),  // 結束日期
     department_id: null,
@@ -375,22 +276,22 @@ const form = reactive({
     data: [],
     paymentRequestRange: [moment().hour(9).minute(0).second(0).toDate(), moment().hour(18).minute(0).toDate()],  // 時間區段
     rangeChange: () => { // 時間檢查
-        if (moment(form.paymentRequestRange[0]).hour() < 9 || moment(form.paymentRequestRange[0]).hour() > 18)
-            form.paymentRequestRange[0] = moment(form.paymentRequestRange[0]).hour(9).toDate();
-        if (moment(form.paymentRequestRange[1]).hour() < 9 || moment(form.paymentRequestRange[1]).hour() > 18)
-            form.paymentRequestRange[1] = moment(form.paymentRequestRange[1]).hour(18).toDate();
-        // form.search();
+        if (moment(paymentSignForm.paymentRequestRange[0]).hour() < 9 || moment(paymentSignForm.paymentRequestRange[0]).hour() > 18)
+            paymentSignForm.paymentRequestRange[0] = moment(paymentSignForm.paymentRequestRange[0]).hour(9).toDate();
+        if (moment(paymentSignForm.paymentRequestRange[1]).hour() < 9 || moment(paymentSignForm.paymentRequestRange[1]).hour() > 18)
+            paymentSignForm.paymentRequestRange[1] = moment(paymentSignForm.paymentRequestRange[1]).hour(18).toDate();
+        // paymentSignForm.search();
     },
     disabledDate: (date: Date) => moment().isAfter(moment(date).add(2, 'years')), // 禁用時間    
     // search: () => {
-    //     businessTrips(form.start, form.end, form.page, form.department_id, form.user_id, form.state).then(res => {
-    //         form.data = res.data.data;
+    //     businessTrips(paymentSignForm.start, paymentSignForm.end, paymentSignForm.page, paymentSignForm.department_id, paymentSignForm.user_id, paymentSignForm.state).then(res => {
+    //         paymentSignForm.data = res.data.data;
     //     });
     // },
     // update: (id) => {
     //     updateBusinessTrip(id).then(res => {
     //         console.log(res.data);
-    //         form.search();
+    //         paymentSignForm.search();
     //     });
     // }
     // sortChange: (column) => {
@@ -407,16 +308,17 @@ const form = reactive({
     //                 order = 'desc';
     //                 break;
     //         }
-    //         form.order = [[prop, order]];
+    //         paymentSignForm.order = [[prop, order]];
 
     //     }
     //     else {
-    //         form.order = null;
+    //         paymentSignForm.order = null;
     //     }
 
-    //     form.search();
+    //     paymentSignForm.search();
     // },
 });
+
 
 // 展開簽核進度
 const expandedRowKeys = ref([]);
@@ -461,28 +363,22 @@ const openPaymentDetail = () => {
     // console.log('showPaymentDetail:', showPaymentDetail.value);
 };
 
-// 欄位中的請款, 簽收彈窗
-const paymentSignHint = ref(false);
+// 點擊產生 請款單簽核
+const showPaymentSignDialog = ref(false);
+
+// 調用子層 "請款單簽核" 函數, 開啟/關閉對話窗
+const paymentSignDialog = ref();
+
+// 欄位中的請款, 簽核彈窗
+const openPaymentSignDialog = () => {
+    paymentSignDialog.value.openSignDialog();
+};
 
 // 綁定選擇的新增請款單來復用到操作欄位的編輯顯示彈窗
 const selectedPaymentRequest = ref(null);
 
 // 定義存放修改的資料
 // const editData = ref<businessFormDataType>()
-
-// 操作 編輯請款單
-const editPaymentRequest = () => {
-    showAddPaymentRequestForm.value = true;
-};
-
-// 操作 送出請款單
-const paymentSendDialog = ref(false);
-
-// 操作 撤回請款單
-const paymentWithdrawDialog = ref(false);
-
-// 操作 刪除請款單
-const paymentDeleteDialog = ref(false);
 
 // 頁數取得資料
 const page = reactive({
@@ -505,7 +401,7 @@ const filteredSignApplications = [
         payment_process0: '未申請',
         payment_process1: '簽收中',
         payment_process2: '審核中',
-        payment_sign: '簽收',
+        payment_sign: '簽核',
         payment_op0: 0,
         payment_op1: 1,
         payment_op2: 2,
@@ -516,6 +412,7 @@ const filteredSignApplications = [
 console.log(filteredSignApplications);
 
 </script>
+
 
 <style lang="scss" scoped>
 @import '@/scss/variable.scss';
@@ -694,7 +591,7 @@ console.log(filteredSignApplications);
                     font-size: 1.2rem;
                 }
 
-                .payment-sign-hint-button {
+                .payment-sign-button {
                     background-color: rgba(1, 84, 120, 1);
                 }
 
@@ -853,5 +750,4 @@ console.log(filteredSignApplications);
             text-align: center;
         }
     }
-}
-</style>
+}</style>
